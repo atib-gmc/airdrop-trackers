@@ -3,23 +3,23 @@ import { FaAngleDoubleLeft } from 'react-icons/fa'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Airdrop, airdropSchema } from '@renderer/schema/Airdrop'
-import { Link, useNavigate } from 'react-router-dom'
-import AirdropCard from './List'
+import { Link, useParams } from 'react-router-dom'
 
 // Define the schema
 // Infer TypeScript type
 
-const Create: React.FC = () => {
-  const navigate = useNavigate()
+const Edit: React.FC = () => {
+  const { id } = useParams()
   const [data, setData] = useState<Airdrop[] | null>(null)
   const {
     register,
     handleSubmit,
-    reset,
-    formState: { errors, isSubmitted, isSubmitSuccessful }
+    formState: { errors }
   } = useForm<Airdrop>({
-    resolver: zodResolver(airdropSchema)
+    resolver: zodResolver(airdropSchema),
+    defaultValues: { ...data }
   })
+
   const onSubmit = async (airdrop: Airdrop): Promise<void> => {
     if (data && data?.length > 0) {
       // console.log([...data, { ...airdrop, id: crypto.randomUUID() }])
@@ -27,19 +27,20 @@ const Create: React.FC = () => {
     } else {
       await window.electron.saveJson([{ ...airdrop, id: crypto.randomUUID() }])
     }
+
     alert('Airdrop created successfully!')
-    reset()
   }
   useEffect(() => {
     const jsonFile = async (): Promise<void> => {
       const data = await window.electron.loadJson()
-      setData(data)
-      // console.log(data)
+      const singleData = data.filter((pre: Airdrop) => pre.id == pre.id)
+      setData(singleData)
     }
     jsonFile()
     console.log(errors)
-  }, [isSubmitSuccessful])
+  }, [])
 
+  // return <Link to={'/'}>Edit file</Link>
   return (
     <div className="min-h-screen  text-white p-4">
       <header className="relative">
@@ -176,6 +177,19 @@ const Create: React.FC = () => {
           />
           {errors.website && <p className="text-red-500 text-sm">{errors.website.message}</p>}
         </div>
+
+        {/* Is Finish */}
+        {/* <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            {...register('is_finish')}
+            className="h-5 w-5 text-blue-500 focus:ring focus:ring-blue-500 border-gray-700 bg-gray-800 rounded"
+          />
+          <label className="text-sm font-medium">Is Finished</label>
+        </div> */}
+
+        {/* Submit Button */}
+
         <button
           type="submit"
           className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded transition"
@@ -183,8 +197,7 @@ const Create: React.FC = () => {
           Create Airdrop
         </button>
       </form>
-      {data && data?.length > 0 && data.map((card) => <AirdropCard key={card.id} airdrop={card} />)}{' '}
     </div>
   )
 }
-export default Create
+export default Edit

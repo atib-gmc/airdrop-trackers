@@ -1,40 +1,41 @@
 import { Airdrop } from '@renderer/schema/Airdrop'
 import { useEffect, useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 
 const AirdropDetail: React.FC = () => {
+  const navigate = useNavigate()
   const { id } = useParams() // Get dynamic parameter from URL
   const [data, setData] = useState<Airdrop | null>(null)
+  const [fullData, setFullData] = useState<Airdrop[] | null>(null)
 
   // Mock data for demonstration. Replace with a fetch or context if data is stored globally.
   useEffect(() => {
     async function getSingleData(): Promise<void> {
-      const airdrop = await (
-        await window.electron.loadJson()
-      ).filter((data: Airdrop) => data.id == id)
-      setData(airdrop[0])
+      const airdrop: Airdrop[] = await await window.electron.loadJson()
+      setFullData(airdrop)
+      const singleData = airdrop.filter((data: Airdrop) => data.id == id)
+      //@ts-ignore
+      setData(singleData[0])
+      // console.log('single data : ', singleData)
       //   console.log(airdrop, id)
     }
     getSingleData()
   }, [])
 
-  const mockData = {
-    projectName: 'Sample Project',
-    tier: 'S',
-    status: 'Ongoing',
-    listing_date: '2024-11-01',
-    claimDeadline: '2024-12-01',
-    reward: '500 Tokens',
-    task: 'Join Telegram, Follow Twitter',
-    network: 'Ethereum',
-    website: 'https://example.com',
-    is_finish: false
+  const handleDelete = async () => {
+    if (window.confirm(`Are you sure you want to delete ${data?.projectName}?`)) {
+      alert('Airdrop deleted!')
+      try {
+        const filterData = fullData?.filter((pre) => pre.id !== id)
+        await window.electron.saveJson(filterData)
+        navigate('/')
+      } catch (error) {
+        window.alert('something went wrong')
+        return null
+      }
+    }
   }
-  //   return (
-  //     <Link to="/" className="btn btn-circle btn-ghost text-blue-400 hover:underline">
-  //       &larr; Back
-  //     </Link>
-  //   )
+
   if (!data) return <h1>Loading...</h1>
 
   return (
@@ -93,24 +94,28 @@ const AirdropDetail: React.FC = () => {
       {/* Action Buttons */}
       <div className="mt-6 flex gap-4">
         {/* Perform Task Button */}
-        <button
-          //   onClick={handleTask}
-          className="py-2 px-4 bg-green-600 text-white rounded hover:bg-green-500"
-        >
-          Perform Task
-        </button>
 
+        <a href="http://google.com" target="_blank" rel="noopener noreferrer">
+          <button
+            //   onClick={handleTask}
+            className="py-2 px-4 bg-green-600 text-white rounded hover:bg-green-500"
+          >
+            Perform Task
+          </button>
+        </a>
         {/* Edit Button */}
-        <button
-          //   onClick={handleEdit}
-          className="py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-500"
-        >
-          Edit
-        </button>
+        <Link to={`/edit/${id}`}>
+          <button
+            //   onClick={handleEdit}
+            className="py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-500"
+          >
+            Edit
+          </button>
+        </Link>
 
         {/* Delete Button */}
         <button
-          //   onClick={handleDelete}
+          onClick={handleDelete}
           className="py-2 px-4 bg-red-600 text-white rounded hover:bg-red-500"
         >
           Delete
