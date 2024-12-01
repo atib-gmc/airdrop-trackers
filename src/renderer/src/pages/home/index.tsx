@@ -1,48 +1,42 @@
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import {
   createColumnHelper,
   flexRender,
   getCoreRowModel,
   useReactTable
 } from '@tanstack/react-table'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Airdrop } from '@renderer/schema/Airdrop'
 
 function Home(): JSX.Element {
+  const [data, setData] = useState<Airdrop[] | null>([])
   const navigate = useNavigate()
   // const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
   // const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const columnHelper = createColumnHelper<Airdrop>()
   // Dummy data
-  const data: Airdrop[] = [
-    {
-      tier: 'S',
-      projectName: 'MoonToken',
-      listing_date: '2024-12-01',
-      claimDeadline: '2025-01-01',
-      reward: '100 MTK',
-      eligibility: 'Hold at least 500 MTK before 2024-11-01',
-      status: 'Upcoming',
-      network: 'Ethereum',
-      website: 'https://moontoken.com',
-      is_finish: false
-    },
-    {
-      tier: 'S',
-      projectName: 'StellarDrop',
-      listing_date: '2024-11-20',
-      claimDeadline: '2024-12-15',
-      reward: '50 XLM',
-      eligibility: "Sign up on Stellar's website before 2024-11-10",
-      status: 'Ongoing',
-      network: 'Stellar',
-      website: 'https://stellardrop.org',
-      is_finish: false
+
+  useEffect(() => {
+    async function getData(): Promise<void> {
+      const airdrops = await window.electron.loadJson()
+      setData(airdrops)
+      // console.log('airdrops', airdrops)
+      // setData()
     }
-  ]
+    getData()
+  }, [])
+
   const columns = [
     columnHelper.accessor('projectName', {
-      cell: (info) => info.getValue(),
+      cell: (info) => (
+        <Link
+          to={`/detail/${info.row.original.id}`}
+          className="hover:text-blue-600 hover:underline"
+        >
+          {' '}
+          {info.getValue()}{' '}
+        </Link>
+      ),
       footer: (info) => info.column.id
     }),
     columnHelper.accessor('website', {
@@ -65,7 +59,7 @@ function Home(): JSX.Element {
   ]
   // Create table instance
   const table = useReactTable({
-    data,
+    data: data || [],
     columns,
     getCoreRowModel: getCoreRowModel()
   })
@@ -74,9 +68,12 @@ function Home(): JSX.Element {
       website: false
     })
   }, [table])
+  // return (
+  // )
   return (
     <>
       <h1 className="text-3xl my-5 text-center mx-auto">Airdrop tracker</h1>
+
       <div className="ctas p-2">
         <button onClick={() => navigate('/create')} className="btn-info btn btn-sm text-slate-700">
           create new
@@ -98,7 +95,7 @@ function Home(): JSX.Element {
             ))}
           </thead>
           <tbody>
-            {table.getRowModel().rows.map((data) => (
+            {table?.getRowModel().rows?.map((data) => (
               <tr key={data.id}>
                 {data.getVisibleCells().map((td) => (
                   <td key={td.id}>{flexRender(td.column.columnDef.cell, td.getContext())}</td>

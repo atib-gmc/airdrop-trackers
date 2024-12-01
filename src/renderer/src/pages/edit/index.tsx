@@ -3,37 +3,43 @@ import { FaAngleDoubleLeft } from 'react-icons/fa'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Airdrop, airdropSchema } from '@renderer/schema/Airdrop'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 
 // Define the schema
 // Infer TypeScript type
 
 const Edit: React.FC = () => {
+  const navigate = useNavigate()
   const { id } = useParams()
-  const [data, setData] = useState<Airdrop[] | null>(null)
+  const [airdrops, setAirdrops] = useState<Airdrop[] | null>(null)
+  const [data, setData] = useState<Airdrop | null>(null)
   const {
     register,
     handleSubmit,
     formState: { errors }
   } = useForm<Airdrop>({
     resolver: zodResolver(airdropSchema),
-    defaultValues: { ...data }
+    values: {
+      ...data
+    }
   })
 
   const onSubmit = async (airdrop: Airdrop): Promise<void> => {
-    if (data && data?.length > 0) {
-      // console.log([...data, { ...airdrop, id: crypto.randomUUID() }])
-      await window.electron.saveJson([...data, { ...airdrop, id: crypto.randomUUID() }])
-    } else {
-      await window.electron.saveJson([{ ...airdrop, id: crypto.randomUUID() }])
+    const restData = airdrops?.filter((pre) => pre.id !== id)
+    const dataToSubmit = [...restData, airdrop]
+    try {
+      await window.electron.saveJson(dataToSubmit)
+      window.alert('airdrop edited')
+      navigate('/')
+    } catch (error) {
+      window.alert('something went wrong')
     }
-
-    alert('Airdrop created successfully!')
   }
   useEffect(() => {
     const jsonFile = async (): Promise<void> => {
-      const data = await window.electron.loadJson()
-      const singleData = data.filter((pre: Airdrop) => pre.id == pre.id)
+      const aidrdopData = await window.electron.loadJson()
+      setAirdrops(aidrdopData)
+      const singleData = aidrdopData.filter((pre: Airdrop) => pre.id == pre.id)[0]
       setData(singleData)
     }
     jsonFile()
@@ -194,7 +200,7 @@ const Edit: React.FC = () => {
           type="submit"
           className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded transition"
         >
-          Create Airdrop
+          Submit
         </button>
       </form>
     </div>
