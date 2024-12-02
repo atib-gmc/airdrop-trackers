@@ -53,7 +53,7 @@ const Edit: React.FC = () => {
         <Link to="/" className="btn btn-circle btn-ghost">
           <FaAngleDoubleLeft size={30} />
         </Link>
-        <h1 className="text-2xl font-bold mb-6 text-center">Create Airdrop</h1>
+        <h1 className="text-2xl font-bold mb-6 text-center">Edit Airdrop</h1>
       </header>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-lg mx-auto mb-2">
         {/* Project Name */}
@@ -102,19 +102,6 @@ const Edit: React.FC = () => {
           )}
         </div>
 
-        {/* Claim Deadline */}
-        <div>
-          <label className="block text-sm font-medium mb-1">Claim Deadline</label>
-          <input
-            type="date"
-            {...register('claimDeadline')}
-            className="w-full p-2 bg-gray-800 border border-gray-700 rounded focus:outline-none focus:ring focus:ring-blue-500"
-          />
-          {errors.claimDeadline && (
-            <p className="text-red-500 text-sm">{errors.claimDeadline.message}</p>
-          )}
-        </div>
-
         {/* Reward */}
         <div>
           <label className="block text-sm font-medium mb-1">Reward</label>
@@ -158,18 +145,6 @@ const Edit: React.FC = () => {
             ))}
           </select>
           {errors.status && <p className="text-red-500 text-sm">{errors.status.message}</p>}
-        </div>
-
-        {/* Network */}
-        <div>
-          <label className="block text-sm font-medium mb-1">Network</label>
-          <input
-            type="text"
-            {...register('network')}
-            className="w-full p-2 bg-gray-800 border border-gray-700 rounded focus:outline-none focus:ring focus:ring-blue-500"
-            placeholder="Enter network (e.g., Ethereum)"
-          />
-          {errors.network && <p className="text-red-500 text-sm">{errors.network.message}</p>}
         </div>
 
         {/* Website */}

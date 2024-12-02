@@ -27,7 +27,7 @@ const AirdropDetail: React.FC = () => {
       alert('Airdrop deleted!')
       try {
         const filterData = fullData?.filter((pre) => pre.id !== id)
-        await window.electron.saveJson(filterData)
+        await window.electron.saveJson(filterData!)
         navigate('/')
       } catch (error) {
         window.alert('something went wrong')
@@ -63,16 +63,10 @@ const AirdropDetail: React.FC = () => {
             <strong>Listing Date:</strong> {data?.listing_date}
           </li>
           <li>
-            <strong>Claim Deadline:</strong> {data?.claimDeadline}
-          </li>
-          <li>
             <strong>Reward:</strong> {data?.reward}
           </li>
           <li>
             <strong>Task:</strong> {data?.task}
-          </li>
-          <li>
-            <strong>Network:</strong> {data?.network}
           </li>
           <li>
             <strong>Website:</strong>{' '}
@@ -84,9 +78,6 @@ const AirdropDetail: React.FC = () => {
             >
               {data?.website}
             </a>
-          </li>
-          <li>
-            <strong>Completed:</strong> {data?.is_finish ? 'Yes' : 'No'}
           </li>
         </ul>
       </div>

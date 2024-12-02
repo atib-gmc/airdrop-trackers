@@ -2,6 +2,7 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { fileURLToPath } from 'url'
+import { isToday } from 'date-fns'
 import { dirname, join } from 'path'
 import fs from 'fs'
 import { Airdrop } from './helper'
@@ -69,7 +70,7 @@ const saveJsonFile = (data: Airdrop): void => {
 
 // Load data from the JSON file
 const loadJsonFile = (): object | null => {
-  console.log({ directory, dirname: __dirname, json: jsonFilePath })
+  // console.log({ directory, dirname: __dirname, json: jsonFilePath })
   // Ensure the directory exists
   if (!fs.existsSync(directory)) {
     fs.mkdirSync(directory, { recursive: true })
@@ -79,6 +80,8 @@ const loadJsonFile = (): object | null => {
     console.log('File does not exist. Creating default JSON file.')
     const defaultData = {}
     fs.writeFileSync(jsonFilePath, JSON.stringify(defaultData, null, 2), 'utf-8')
+    const newData = defaultData
+    console.log(defaulttData)
     return defaultData
   }
   // Load and parse the JSON file

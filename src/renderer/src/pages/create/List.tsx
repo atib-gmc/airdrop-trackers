@@ -3,19 +3,7 @@ import { Airdrop } from '@renderer/schema/Airdrop'
 import { Link } from 'react-router-dom'
 
 const AirdropCard = ({ airdrop }: { airdrop: Airdrop }): JSX.Element => {
-  const {
-    projectName,
-    tier,
-    id,
-    status,
-    listing_date,
-    claimDeadline,
-    reward,
-    task,
-    network,
-    website,
-    is_finish
-  } = airdrop
+  const { projectName, tier, id, status, listing_date, reward, task } = airdrop
 
   return (
     <div className="max-w-sm mx-auto mb-2  bg-slate-800 text-white rounded-lg shadow-lg overflow-hidden dark:bg-gray-800">
@@ -40,9 +28,6 @@ const AirdropCard = ({ airdrop }: { airdrop: Airdrop }): JSX.Element => {
           <p>
             <strong>Listing Date:</strong> {listing_date}
           </p>
-          <p>
-            <strong>Claim Deadline:</strong> {claimDeadline}
-          </p>
         </div>
 
         <div className="mb-4">
@@ -52,28 +37,6 @@ const AirdropCard = ({ airdrop }: { airdrop: Airdrop }): JSX.Element => {
           <p>
             <strong>Task:</strong> {task}
           </p>
-        </div>
-
-        <div className="mb-4">
-          <p>
-            <strong>Network:</strong> {network}
-          </p>
-          <a
-            href={website}
-            className="text-blue-400 hover:text-blue-600"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Visit Website
-          </a>
-        </div>
-
-        <div className="mt-4">
-          <span
-            className={`text-sm font-semibold ${is_finish ? 'text-red-500' : 'text-green-500'}`}
-          >
-            {is_finish ? 'Airdrop Finished' : 'Airdrop Ongoing'}
-          </span>
         </div>
       </div>
     </div>

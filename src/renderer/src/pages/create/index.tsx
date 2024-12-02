@@ -23,9 +23,12 @@ const Create: React.FC = () => {
   const onSubmit = async (airdrop: Airdrop): Promise<void> => {
     if (data && data?.length > 0) {
       // console.log([...data, { ...airdrop, id: crypto.randomUUID() }])
-      await window.electron.saveJson([...data, { ...airdrop, id: crypto.randomUUID() }])
+      await window.electron.saveJson([
+        ...data,
+        { ...airdrop, id: crypto.randomUUID(), completed_at: null }
+      ])
     } else {
-      await window.electron.saveJson([{ ...airdrop, id: crypto.randomUUID() }])
+      await window.electron.saveJson([{ ...airdrop, id: crypto.randomUUID(), completed_at: null }])
     }
     alert('Airdrop created successfully!')
     reset()
@@ -37,8 +40,9 @@ const Create: React.FC = () => {
       // console.log(data)
     }
     jsonFile()
-    console.log(errors)
+    // console.log(errors)
   }, [isSubmitSuccessful])
+  // console.log(errors)
 
   return (
     <div className="min-h-screen  text-white p-4">
@@ -96,17 +100,6 @@ const Create: React.FC = () => {
         </div>
 
         {/* Claim Deadline */}
-        <div>
-          <label className="block text-sm font-medium mb-1">Claim Deadline</label>
-          <input
-            type="date"
-            {...register('claimDeadline')}
-            className="w-full p-2 bg-gray-800 border border-gray-700 rounded focus:outline-none focus:ring focus:ring-blue-500"
-          />
-          {errors.claimDeadline && (
-            <p className="text-red-500 text-sm">{errors.claimDeadline.message}</p>
-          )}
-        </div>
 
         {/* Reward */}
         <div>
@@ -152,19 +145,7 @@ const Create: React.FC = () => {
           </select>
           {errors.status && <p className="text-red-500 text-sm">{errors.status.message}</p>}
         </div>
-
         {/* Network */}
-        <div>
-          <label className="block text-sm font-medium mb-1">Network</label>
-          <input
-            type="text"
-            {...register('network')}
-            className="w-full p-2 bg-gray-800 border border-gray-700 rounded focus:outline-none focus:ring focus:ring-blue-500"
-            placeholder="Enter network (e.g., Ethereum)"
-          />
-          {errors.network && <p className="text-red-500 text-sm">{errors.network.message}</p>}
-        </div>
-
         {/* Website */}
         <div>
           <label className="block text-sm font-medium mb-1">Website</label>

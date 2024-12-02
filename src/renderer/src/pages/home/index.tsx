@@ -1,3 +1,5 @@
+import { set, format } from 'date-fns'
+import { FaTasks } from 'react-icons/fa'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   createColumnHelper,
@@ -15,6 +17,29 @@ function Home(): JSX.Element {
   // const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const columnHelper = createColumnHelper<Airdrop>()
   // Dummy data
+  async function handleTask(taskId: string): Promise<void> {
+    const finishTask = data?.map((pre) => {
+      if (pre.id == taskId) {
+        // Get the current date and set the current time dynamically
+        const currentDate = new Date()
+        const completedAt = set(currentDate, {
+          hours: currentDate.getHours(), // Get current hours
+          minutes: currentDate.getMinutes(), // Get current minutes
+          seconds: currentDate.getSeconds() // Get current seconds
+        })
+
+        // Format the date to a readable format
+        const formattedDate = format(completedAt, 'yyyy-MM-dd')
+
+        return { ...pre, completed_at: formattedDate }
+      } else {
+        return pre
+      }
+    })
+    await window.electron.saveJson(finishTask!)
+
+    setData(finishTask!)
+  }
 
   useEffect(() => {
     async function getData(): Promise<void> {
@@ -24,18 +49,21 @@ function Home(): JSX.Element {
       // setData()
     }
     getData()
+    console.log(data)
   }, [])
 
   const columns = [
     columnHelper.accessor('projectName', {
       cell: (info) => (
-        <Link
-          to={`/detail/${info.row.original.id}`}
-          className="hover:text-blue-600 hover:underline"
-        >
-          {' '}
-          {info.getValue()}{' '}
-        </Link>
+        <div className="flex  gap-2 items-center">
+          <input type="checkbox" checked={Boolean(info.row.original.completed_at)} name="" id="" />
+          <Link
+            to={`/detail/${info.row.original.id}`}
+            className="hover:text-blue-600 hover:underline"
+          >
+            {info.getValue()}{' '}
+          </Link>
+        </div>
       ),
       footer: (info) => info.column.id
     }),
@@ -44,16 +72,31 @@ function Home(): JSX.Element {
       cell: (info) => info.renderValue(),
       footer: (info) => info.column.id
     }),
-    columnHelper.accessor('listing_date', {
-      header: () => <span>Listing Date</span>,
+    columnHelper.accessor('tier', {
+      header: () => <span>tier</span>,
       footer: (info) => info.column.id
     }),
     columnHelper.accessor('status', {
       header: 'Status',
       footer: (info) => info.column.id
     }),
-    columnHelper.accessor('reward', {
-      header: 'reward',
+    columnHelper.accessor('completed_at', {
+      cell: (info) =>
+        info.getValue() ? (
+          'finished'
+        ) : (
+          <>
+            <a href={info.row.original.website} target="_blank">
+              <button
+                className="btn btn-success text-gray-900  btn-sm"
+                onClick={() => handleTask(info.row.original.id!)}
+              >
+                do task
+              </button>
+            </a>
+          </>
+        ),
+      header: 'task(today)',
       footer: (info) => info.column.id
     })
   ]
@@ -72,11 +115,31 @@ function Home(): JSX.Element {
   // )
   return (
     <>
-      <h1 className="text-3xl my-5 text-center mx-auto">Airdrop tracker</h1>
+      <div className="text-3xl items-center my-5 flex  justify-center gap-2 text-center mx-auto">
+        <FaTasks />
+        <div className="l">Airdrop</div>
+        <div className="l">Tracker</div>
+      </div>
 
-      <div className="ctas p-2">
-        <button onClick={() => navigate('/create')} className="btn-info btn btn-sm text-slate-700">
+      <div className="ctas p-2 flex gap-2 px-4">
+        <button
+          onClick={() => navigate('/create')}
+          className="btn-info mr-auto btn btn-sm text-slate-700"
+        >
           create new
+        </button>
+
+        <button
+          onClick={() => navigate('/create')}
+          className=" btn-sm ml-auto btn btn-secondary text-slate-800"
+        >
+          do S tier
+        </button>
+        <button
+          onClick={() => navigate('/create')}
+          className="btn-accent btn btn-sm text-slate-700"
+        >
+          do all task
         </button>
       </div>
       <div className="container max-w-full ">
