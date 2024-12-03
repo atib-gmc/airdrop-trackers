@@ -36,6 +36,7 @@ const AirdropDetail: React.FC = () => {
     }
   }
 
+
   if (!data) return <h1>Loading...</h1>
 
   return (
@@ -86,7 +87,7 @@ const AirdropDetail: React.FC = () => {
       <div className="mt-6 flex gap-4">
         {/* Perform Task Button */}
 
-        <a href="http://google.com" target="_blank" rel="noopener noreferrer">
+        <a href={data.website} target="_blank" rel="noopener noreferrer">
           <button
             //   onClick={handleTask}
             className="py-2 px-4 bg-green-600 text-white rounded hover:bg-green-500"

@@ -2,12 +2,25 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { fileURLToPath } from 'url'
-import { isToday } from 'date-fns'
+import { isYesterday } from 'date-fns'
 import { dirname, join } from 'path'
 import fs from 'fs'
 import { Airdrop } from './helper'
 
 const originalLog = console.log
+
+
+const isToday = (date: string): boolean => {
+  // Get the current date and set its time to midnight
+  const today = new Date();
+
+  // Parse the input date string (format: 'YYYY-MM-DD') and set its time to midnight
+
+  // Compare the two dates (only the date part, not time)
+  console.log(today.toDateString() ===date.toDateString())
+  return today.toDateString() ===date.toDateString()
+};
+
 
 console.log = function (...args): void {
   const error = new Error()
@@ -80,14 +93,26 @@ const loadJsonFile = (): object | null => {
     console.log('File does not exist. Creating default JSON file.')
     const defaultData = {}
     fs.writeFileSync(jsonFilePath, JSON.stringify(defaultData, null, 2), 'utf-8')
-    const newData = defaultData
-    console.log(defaulttData)
     return defaultData
   }
+
   // Load and parse the JSON file
   try {
     const jsonData = fs.readFileSync(jsonFilePath, 'utf-8')
-    return JSON.parse(jsonData)
+    const myData = JSON.parse(jsonData).map(pre=>{
+      //console.log(isToday(pre.completed_at),pre.completed_at);
+      console.log(pre.completed_at," : ",isYesterday(pre.completed_at));
+
+
+      //if(pre.completed_at && !isToday(pre.completed_at)){
+      //  console.log("this code executed");
+      //  return {...pre,completed_at:null}
+      //}
+      return pre
+    })
+
+
+    return myData
   } catch (error) {
     console.error('Error reading JSON file:', error)
     return null

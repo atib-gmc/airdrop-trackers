@@ -7,9 +7,16 @@ import {
   getCoreRowModel,
   useReactTable
 } from '@tanstack/react-table'
+import { isYesterday} from "date-fns";
 import { useEffect, useState } from 'react'
 import { Airdrop } from '@renderer/schema/Airdrop'
 
+function isToday(date:string) {
+  const today = new Date()
+  const currentDate = new Date(date)
+
+  return today.toDateString() === currentDate.toDateString()
+}
 function Home(): JSX.Element {
   const [data, setData] = useState<Airdrop[] | null>([])
   const navigate = useNavigate()
@@ -22,16 +29,11 @@ function Home(): JSX.Element {
       if (pre.id == taskId) {
         // Get the current date and set the current time dynamically
         const currentDate = new Date()
-        const completedAt = set(currentDate, {
-          hours: currentDate.getHours(), // Get current hours
-          minutes: currentDate.getMinutes(), // Get current minutes
-          seconds: currentDate.getSeconds() // Get current seconds
-        })
 
         // Format the date to a readable format
-        const formattedDate = format(completedAt, 'yyyy-MM-dd')
 
-        return { ...pre, completed_at: formattedDate }
+         console.log( {...pre, completed_at: currentDate })
+        return { ...pre, completed_at: currentDate }
       } else {
         return pre
       }
@@ -41,10 +43,27 @@ function Home(): JSX.Element {
     setData(finishTask!)
   }
 
+  function handlerSTier(){
+    data.forEach(e=> {
+      if(e.tier.toLowerCase() == "s"){
+        window.open(e.website,"_blank")
+      }
+
+    });
+  }
+  function allTaskHandler(){
+  data.forEach(pre=>{
+     window.open(pre.website,"_blank")
+    })
+  }
+
   useEffect(() => {
     async function getData(): Promise<void> {
       const airdrops = await window.electron.loadJson()
       setData(airdrops)
+      console.log(airdrops);
+
+
       // console.log('airdrops', airdrops)
       // setData()
     }
@@ -56,7 +75,7 @@ function Home(): JSX.Element {
     columnHelper.accessor('projectName', {
       cell: (info) => (
         <div className="flex  gap-2 items-center">
-          <input type="checkbox" checked={Boolean(info.row.original.completed_at)} name="" id="" />
+          <input type="checkbox" checked={Boolean(isToday(info.row.original.completed_at))} name="" id="" />
           <Link
             to={`/detail/${info.row.original.id}`}
             className="hover:text-blue-600 hover:underline"
@@ -130,13 +149,13 @@ function Home(): JSX.Element {
         </button>
 
         <button
-          onClick={() => navigate('/create')}
+          onClick={handlerSTier}
           className=" btn-sm ml-auto btn btn-secondary text-slate-800"
         >
           do S tier
         </button>
         <button
-          onClick={() => navigate('/create')}
+          onClick={allTaskHandler}
           className="btn-accent btn btn-sm text-slate-700"
         >
           do all task
