@@ -6,7 +6,7 @@ const AirdropDetail: React.FC = () => {
   const navigate = useNavigate()
   const { id } = useParams() // Get dynamic parameter from URL
   const [data, setData] = useState<Airdrop | null>(null)
-  const [fullData, setFullData] = useState<Airdrop[] | null>(null)
+  const [fullData, setFullData] = useState<Airdrop[] | null>([])
 
   // Mock data for demonstration. Replace with a fetch or context if data is stored globally.
   useEffect(() => {
@@ -22,7 +22,7 @@ const AirdropDetail: React.FC = () => {
     getSingleData()
   }, [])
 
-  const handleDelete = async () => {
+  const handleDelete = async (): Promise<void> => {
     if (window.confirm(`Are you sure you want to delete ${data?.projectName}?`)) {
       alert('Airdrop deleted!')
       try {
@@ -31,11 +31,10 @@ const AirdropDetail: React.FC = () => {
         navigate('/')
       } catch (error) {
         window.alert('something went wrong')
-        return null
+        return
       }
     }
   }
-
 
   if (!data) return <h1>Loading...</h1>
 

@@ -1,4 +1,3 @@
-import { set, format } from 'date-fns'
 import { FaTasks } from 'react-icons/fa'
 import { Link, useNavigate } from 'react-router-dom'
 import {
@@ -7,18 +6,17 @@ import {
   getCoreRowModel,
   useReactTable
 } from '@tanstack/react-table'
-import { isYesterday} from "date-fns";
 import { useEffect, useState } from 'react'
 import { Airdrop } from '@renderer/schema/Airdrop'
 
-function isToday(date:string) {
+function isToday(date: string): boolean {
   const today = new Date()
   const currentDate = new Date(date)
 
   return today.toDateString() === currentDate.toDateString()
 }
 function Home(): JSX.Element {
-  const [data, setData] = useState<Airdrop[] | null>([])
+  const [data, setData] = useState<Airdrop[]>([])
   const navigate = useNavigate()
   // const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
   // const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
@@ -32,8 +30,8 @@ function Home(): JSX.Element {
 
         // Format the date to a readable format
 
-         console.log( {...pre, completed_at: currentDate })
-        return { ...pre, completed_at: currentDate }
+        console.log({ ...pre, completed_at: String(currentDate) })
+        return { ...pre, completed_at: String(currentDate) }
       } else {
         return pre
       }
@@ -43,17 +41,16 @@ function Home(): JSX.Element {
     setData(finishTask!)
   }
 
-  function handlerSTier(){
-    data.forEach(e=> {
-      if(e.tier.toLowerCase() == "s"){
-        window.open(e.website,"_blank")
+  function handlerSTier(): void {
+    data?.forEach((e) => {
+      if (e.tier.toLowerCase() == 's') {
+        window.open(e.website, '_blank')
       }
-
-    });
+    })
   }
-  function allTaskHandler(){
-  data.forEach(pre=>{
-     window.open(pre.website,"_blank")
+  function allTaskHandler(): void {
+    data?.forEach((pre) => {
+      window.open(pre.website, '_blank')
     })
   }
 
@@ -61,8 +58,7 @@ function Home(): JSX.Element {
     async function getData(): Promise<void> {
       const airdrops = await window.electron.loadJson()
       setData(airdrops)
-      console.log(airdrops);
-
+      console.log(airdrops)
 
       // console.log('airdrops', airdrops)
       // setData()
@@ -75,7 +71,12 @@ function Home(): JSX.Element {
     columnHelper.accessor('projectName', {
       cell: (info) => (
         <div className="flex  gap-2 items-center">
-          <input type="checkbox" checked={Boolean(isToday(info.row.original.completed_at))} name="" id="" />
+          <input
+            type="checkbox"
+            checked={Boolean(isToday(info.row.original.completed_at!))}
+            name=""
+            id=""
+          />
           <Link
             to={`/detail/${info.row.original.id}`}
             className="hover:text-blue-600 hover:underline"
@@ -101,13 +102,13 @@ function Home(): JSX.Element {
     }),
     columnHelper.accessor('completed_at', {
       cell: (info) =>
-        info.getValue() ? (
-          'finished'
+        isToday(info?.row?.original?.completed_at!) ? (
+          'completed'
         ) : (
           <>
             <a href={info.row.original.website} target="_blank">
               <button
-                className="btn btn-success text-gray-900  btn-sm"
+                className="btn btn-success text-gray-900  btn-xs"
                 onClick={() => handleTask(info.row.original.id!)}
               >
                 do task
@@ -148,16 +149,10 @@ function Home(): JSX.Element {
           create new
         </button>
 
-        <button
-          onClick={handlerSTier}
-          className=" btn-sm ml-auto btn btn-secondary text-slate-800"
-        >
+        <button onClick={handlerSTier} className=" btn-sm ml-auto btn btn-secondary text-slate-800">
           do S tier
         </button>
-        <button
-          onClick={allTaskHandler}
-          className="btn-accent btn btn-sm text-slate-700"
-        >
+        <button onClick={allTaskHandler} className="btn-accent btn btn-sm text-slate-700">
           do all task
         </button>
       </div>

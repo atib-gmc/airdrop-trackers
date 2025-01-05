@@ -2,7 +2,6 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { fileURLToPath } from 'url'
-import { isYesterday } from 'date-fns'
 import { dirname, join } from 'path'
 import fs from 'fs'
 import { Airdrop } from './helper'
@@ -10,16 +9,6 @@ import { Airdrop } from './helper'
 const originalLog = console.log
 
 
-const isToday = (date: string): boolean => {
-  // Get the current date and set its time to midnight
-  const today = new Date();
-
-  // Parse the input date string (format: 'YYYY-MM-DD') and set its time to midnight
-
-  // Compare the two dates (only the date part, not time)
-  console.log(today.toDateString() ===date.toDateString())
-  return today.toDateString() ===date.toDateString()
-};
 
 
 console.log = function (...args): void {
@@ -99,17 +88,7 @@ const loadJsonFile = (): object | null => {
   // Load and parse the JSON file
   try {
     const jsonData = fs.readFileSync(jsonFilePath, 'utf-8')
-    const myData = JSON.parse(jsonData).map(pre=>{
-      //console.log(isToday(pre.completed_at),pre.completed_at);
-      console.log(pre.completed_at," : ",isYesterday(pre.completed_at));
-
-
-      //if(pre.completed_at && !isToday(pre.completed_at)){
-      //  console.log("this code executed");
-      //  return {...pre,completed_at:null}
-      //}
-      return pre
-    })
+    const myData = JSON.parse(jsonData)
 
 
     return myData

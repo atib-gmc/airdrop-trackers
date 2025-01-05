@@ -3,20 +3,19 @@ import { FaAngleDoubleLeft } from 'react-icons/fa'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Airdrop, airdropSchema } from '@renderer/schema/Airdrop'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import AirdropCard from './List'
 
 // Define the schema
 // Infer TypeScript type
 
 const Create: React.FC = () => {
-  const navigate = useNavigate()
   const [data, setData] = useState<Airdrop[] | null>(null)
   const {
     register,
     handleSubmit,
     reset,
-    formState: { errors, isSubmitted, isSubmitSuccessful }
+    formState: { errors, isSubmitSuccessful }
   } = useForm<Airdrop>({
     resolver: zodResolver(airdropSchema)
   })

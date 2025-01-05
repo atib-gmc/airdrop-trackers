@@ -1,54 +1,60 @@
-import React, { useEffect, useState } from 'react'
-import { FaAngleDoubleLeft } from 'react-icons/fa'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { Airdrop, airdropSchema } from '@renderer/schema/Airdrop'
-import { Link, useNavigate, useParams } from 'react-router-dom'
-
-// Define the schema
-// Infer TypeScript type
+import React, { useEffect, useState } from 'react';
+import { FaAngleDoubleLeft } from 'react-icons/fa';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Airdrop, airdropSchema } from '@renderer/schema/Airdrop';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 
 const Edit: React.FC = () => {
-  const navigate = useNavigate()
-  const { id } = useParams()
-  const [airdrops, setAirdrops] = useState<Airdrop[] | null>(null)
-  const [data, setData] = useState<Airdrop | null>(null)
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const [airdrops, setAirdrops] = useState<Airdrop[] | null>(null);
+  const [data, setData] = useState<Airdrop | null>(null);
+
   const {
     register,
     handleSubmit,
-    formState: { errors }
+    reset,
+    formState: { errors },
   } = useForm<Airdrop>({
     resolver: zodResolver(airdropSchema),
-    values: {
-      ...data
+  });
+
+  // Fetch data and set the form values
+  useEffect(() => {
+    const fetchData = async (): Promise<void> => {
+      const airdropData = await window.electron.loadJson();
+      setAirdrops(airdropData);
+
+      const singleData = airdropData.find((pre: Airdrop) => pre.id === id);
+      setData(singleData);
+    };
+
+    fetchData();
+  }, [id]);
+
+  // Reset the form whenever `data` changes
+  useEffect(() => {
+    if (data) {
+      reset(data); // Populate the form with new data
     }
-  })
+  }, [data, reset]);
 
   const onSubmit = async (airdrop: Airdrop): Promise<void> => {
-    const restData = airdrops?.filter((pre) => pre.id !== id)
-    const dataToSubmit = [...restData, airdrop]
+    const restData = airdrops?.filter((pre) => pre.id !== id);
+    const dataToSubmit = [...(restData || []), airdrop];
     try {
-      await window.electron.saveJson(dataToSubmit)
-      window.alert('airdrop edited')
-      navigate('/')
+      await window.electron.saveJson(dataToSubmit);
+      window.alert('Airdrop edited');
+      reset(); // Clear the form
+      navigate('/');
     } catch (error) {
-      window.alert('something went wrong')
+      window.alert('Something went wrong');
     }
-  }
-  useEffect(() => {
-    const jsonFile = async (): Promise<void> => {
-      const aidrdopData = await window.electron.loadJson()
-      setAirdrops(aidrdopData)
-      const singleData = aidrdopData.filter((pre: Airdrop) => pre.id == pre.id)[0]
-      setData(singleData)
-    }
-    jsonFile()
-    console.log(errors)
-  }, [])
+  };
 
-  // return <Link to={'/'}>Edit file</Link>
   return (
-    <div className="min-h-screen  text-white p-4">
+    <div className="min-h-screen text-white p-4">
       <header className="relative">
         <Link to="/" className="btn btn-circle btn-ghost">
           <FaAngleDoubleLeft size={30} />
@@ -80,9 +86,9 @@ const Edit: React.FC = () => {
             <option disabled value="">
               Select Tier
             </option>
-            {Object.entries(airdropSchema.shape.tier.Values).map((data) => (
-              <option key={data[0]} value={data[0]}>
-                {data[0]}
+            {Object.entries(airdropSchema.shape.tier.Values).map(([key, value]) => (
+              <option key={key} value={key}>
+                {value}
               </option>
             ))}
           </select>
@@ -114,13 +120,13 @@ const Edit: React.FC = () => {
           {errors.reward && <p className="text-red-500 text-sm">{errors.reward.message}</p>}
         </div>
 
-        {/* Eligibility */}
+        {/* Task */}
         <div>
           <label className="block text-sm font-medium mb-1">Task</label>
           <textarea
             {...register('task')}
             className="w-full p-2 bg-gray-800 border border-gray-700 rounded focus:outline-none focus:ring focus:ring-blue-500"
-            placeholder="explain the airdrop tasks"
+            placeholder="Explain the airdrop tasks"
           />
           {errors.task && <p className="text-red-500 text-sm">{errors.task.message}</p>}
         </div>
@@ -132,15 +138,10 @@ const Edit: React.FC = () => {
             {...register('status')}
             className="w-full p-2 bg-gray-800 border border-gray-700 rounded focus:outline-none focus:ring focus:ring-blue-500"
           >
-            {/* {Object.keys(airdropSchema.shape.status).map((data) => (
-              <option key={data} value={data}>
-                {data}
-              </option>
-            ))} */}
             <option value="">Select Status</option>
-            {Object.entries(airdropSchema.shape.status.Values).map((data) => (
-              <option key={data[0]} value={data[0]}>
-                {data[0]}
+            {Object.entries(airdropSchema.shape.status.Values).map(([key, value]) => (
+              <option key={key} value={key}>
+                {value}
               </option>
             ))}
           </select>
@@ -159,18 +160,7 @@ const Edit: React.FC = () => {
           {errors.website && <p className="text-red-500 text-sm">{errors.website.message}</p>}
         </div>
 
-        {/* Is Finish */}
-        {/* <div className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            {...register('is_finish')}
-            className="h-5 w-5 text-blue-500 focus:ring focus:ring-blue-500 border-gray-700 bg-gray-800 rounded"
-          />
-          <label className="text-sm font-medium">Is Finished</label>
-        </div> */}
-
         {/* Submit Button */}
-
         <button
           type="submit"
           className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded transition"
@@ -179,6 +169,7 @@ const Edit: React.FC = () => {
         </button>
       </form>
     </div>
-  )
-}
-export default Edit
+  );
+};
+
+export default Edit;
